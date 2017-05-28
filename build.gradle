@@ -8,7 +8,7 @@ plugins {
     id "org.jetbrains.intellij" version "0.2.4"
 }
 
-group 'com.github.dominikundtilo'
+group 'com.github.dominikundtilo.calculator'
 version '1.0'
 
 apply plugin: 'java'
