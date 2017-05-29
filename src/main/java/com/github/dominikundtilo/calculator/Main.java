@@ -15,7 +15,7 @@ public class Main {
         } catch (IOException e) {
             return;
         }
-        new WorkGUI().setVisible(true);
+        new WorkGUI(data).setVisible(true);
 
 
 

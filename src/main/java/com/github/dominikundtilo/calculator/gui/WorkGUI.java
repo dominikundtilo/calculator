@@ -1,7 +1,13 @@
 package com.github.dominikundtilo.calculator.gui;
 
+import com.github.dominikundtilo.calculator.lib.GameData;
+import com.github.dominikundtilo.calculator.lib.Item;
+import javafx.geometry.VerticalDirection;
+
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 
 /**
  * Created by Dominik on 28.05.2017.
@@ -9,8 +15,37 @@ import java.awt.*;
 
 public class WorkGUI extends GUI{
     private JPanel productionPanel;
+    private JPanel productionPanelCenter;
     private JPanel configPanel;
+    private JPanel configPanelLeft;
+    private JPanel configPanelRight;
     private JPanel resultPanel;
+    private JComboBox<String> products;
+    private JComboBox<String> machines;
+    private JLabel speedbonus;
+    private JLabel productivitybonus;
+    private JLabel amount;
+    private JTextField speedField;
+    private JTextField productivityField;
+    private JTextField amountField;
+    private JButton confirmButton;
+    private JButton calculateButton;
+
+    private GameData data;
+
+    public WorkGUI(GameData data) {
+        super();
+        this.data = data;
+
+        initData();
+        pack();
+    }
+
+    private void initData() {
+        for(Item item : data.craftableItems){
+            products.addItem(item.getName());
+        }
+    }
 
     @Override
     void initGUI() {
@@ -18,30 +53,100 @@ public class WorkGUI extends GUI{
 
 
         panel.setLayout(new BorderLayout());
-        panel.setBackground(Color.cyan);
-
+        panel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
 
         productionPanel = new JPanel();
         productionPanel.setLayout(new BorderLayout());
-        productionPanel.setBackground(Color.black);
-        productionPanel.setPreferredSize(new Dimension(50,50));
-
 
         configPanel = new JPanel();
         configPanel.setLayout(new BorderLayout());
-        configPanel.setBackground(Color.blue);
-        configPanel.setPreferredSize(new Dimension(50,50));
-
 
         resultPanel = new JPanel();
         resultPanel.setLayout(new BorderLayout());
-        resultPanel.setBackground(Color.DARK_GRAY);
+        resultPanel.setBackground(Color.yellow);
         resultPanel.setPreferredSize(new Dimension(50,50));
+
+        configPanelLeft = new JPanel();
+        configPanelLeft.setLayout(new BorderLayout());
+
+        configPanelRight = new JPanel();
+        configPanelRight.setLayout(new BorderLayout());
+
+        productionPanelCenter = new JPanel();
+        productionPanelCenter.setLayout(new BorderLayout());
+
+        speedbonus = new JLabel();
+        speedbonus.setText("speedbonus");
+
+        productivitybonus = new JLabel();
+        productivitybonus.setText("productivitybonus");
+
+        amount = new JLabel();
+        amount.setText("Amount per second");
+
+        speedField = new JTextField();
+        speedField.setText("0");
+
+        productivityField = new JTextField();
+        productivityField.setText("0");
+
+        amountField = new JTextField();
+        amountField.setText("0");
+
+
+        products = new JComboBox<>();
+
+
+        machines = new JComboBox<>();
+        machines.addItem("Machine 0");
+        machines.addItem("Machine 1");
+        machines.addItem("Machine 2");
+
+        confirmButton = new JButton();
+        confirmButton.setText("Confirm changes");
+        confirmButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+
+            }
+        });
+
+        calculateButton = new JButton();
+        calculateButton.setText("Calculate");
+        calculateButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+
+            }
+        });
+
+
 
 
         panel.add(productionPanel, BorderLayout.LINE_START);
+        panel.add(new SpaceHolder(25, 0), BorderLayout.CENTER);
         panel.add(configPanel, BorderLayout.LINE_END);
         panel.add(resultPanel, BorderLayout.PAGE_END);
+
+        productionPanel.add(products, BorderLayout.PAGE_START);
+        productionPanel.add(productionPanelCenter, BorderLayout.CENTER);
+        productionPanel.add(calculateButton, BorderLayout.PAGE_END);
+
+        productionPanelCenter.add(amount, BorderLayout.PAGE_START);
+        productionPanelCenter.add(amountField, BorderLayout.PAGE_END);
+
+        configPanel.add(machines, BorderLayout.PAGE_START);
+        configPanel.add(configPanelLeft, BorderLayout.LINE_START);
+        configPanel.add(new SpaceHolder(25, 0), BorderLayout.CENTER);
+        configPanel.add(configPanelRight, BorderLayout.LINE_END);
+        configPanel.add(confirmButton, BorderLayout.PAGE_END);
+
+        configPanelLeft.add(speedbonus, BorderLayout.PAGE_START);
+        configPanelLeft.add(speedField, BorderLayout.PAGE_END);
+
+        configPanelRight.add(productivitybonus, BorderLayout.PAGE_START);
+        configPanelRight.add(productivityField, BorderLayout.PAGE_END);
+
 
 
 
