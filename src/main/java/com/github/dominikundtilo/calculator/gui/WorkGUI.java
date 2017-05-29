@@ -1,13 +1,17 @@
 package com.github.dominikundtilo.calculator.gui;
 
 import com.github.dominikundtilo.calculator.lib.GameData;
+import com.github.dominikundtilo.calculator.lib.IItem;
 import com.github.dominikundtilo.calculator.lib.Item;
+import com.github.dominikundtilo.calculator.lib.Recipe;
 import javafx.geometry.VerticalDirection;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.lang.reflect.Array;
+import java.util.ArrayList;
 
 /**
  * Created by Dominik on 28.05.2017.
@@ -156,8 +160,22 @@ public class WorkGUI extends GUI{
     @Override
     void initListeners() {
 
+        calculateButton.addActionListener(e -> {
+            Recipe recipe = inputRecipe(data.craftableItems.get(products.getSelectedIndex()));
 
+        });
 
+    }
+
+    private Recipe inputRecipe(Item item) {
+        ArrayList<Recipe> recipes = data.recipesForItem.get(item);
+        if (recipes.size() == 1)
+            return recipes.get(0);
+        JComboBox<String> comboBox = new JComboBox<>();
+        for (Recipe recipe : recipes)
+            comboBox.addItem(recipe.getName());
+        JOptionPane.showMessageDialog( null, comboBox, "select recipe", JOptionPane.QUESTION_MESSAGE);
+        return recipes.get(comboBox.getSelectedIndex());
     }
 
 }
