@@ -17,6 +17,7 @@ public class GameData {
     public final HashMap<Item, ArrayList<Recipe>> recipesForItem = new HashMap<>();
 
     public final ArrayList<Item> items = new ArrayList<>();
+    public final ArrayList<Item> craftableItems = new ArrayList<>();
     public final HashMap<String, ArrayList<Item>> itemsByType = new HashMap<>();
 
     public GameData() throws IOException {
@@ -55,6 +56,8 @@ public class GameData {
             if (!itemsByType.containsKey(item.getType()))
                 itemsByType.put(item.getType(), new ArrayList<>());
             itemsByType.get(item.getType()).add(item);
+            if (recipesForItem.containsKey(item))
+                craftableItems.add(item);
         }
 
     }
