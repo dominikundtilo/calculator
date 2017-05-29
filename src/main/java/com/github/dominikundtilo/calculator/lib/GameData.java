@@ -12,7 +12,7 @@ public class GameData {
 
     static final Gson GSON = new Gson();
 
-    public final List<Recipe> recipes;
+    public final ArrayList<Recipe> recipes;
     public final HashMap<String, ArrayList<Recipe>> recipesByCategory = new HashMap<>();
     public final HashMap<Item, ArrayList<Recipe>> recipesForItem = new HashMap<>();
 
@@ -25,7 +25,8 @@ public class GameData {
             throw new IOException();
         String json = new String(Files.readAllBytes(path), "UTF-8");
 
-        recipes = Arrays.asList(GSON.fromJson(json, Recipe[].class));
+        recipes = new ArrayList<>(Arrays.asList(GSON.fromJson(json, Recipe[].class)));
+        Collections.sort(recipes, (o1, o2) -> o1.getName().compareToIgnoreCase(o2.getName()));
 
         for (Recipe recipe : recipes) {
             if (!recipesByCategory.containsKey(recipe.getCategory()))
@@ -49,6 +50,7 @@ public class GameData {
             }
 
         }
+        Collections.sort(items, (o1, o2) -> o1.getName().compareToIgnoreCase(o2.getName()));
         for (Item item : items) {
             if (!itemsByType.containsKey(item.getType()))
                 itemsByType.put(item.getType(), new ArrayList<>());
@@ -66,6 +68,8 @@ public class GameData {
         String os = System.getProperty("os.name");
         if (os.equals("Linux")) {
             return new File(System.getProperty("user.home") + "/.factorio/script-output/calculator-dump.json").toPath();
+        } else if (os.startsWith("Windows")) {
+            return new File(System.getProperty("user.home") + "\\AppData\\Roaming\\Factorio\\script-output\\calculator-dump.json").toPath();
         }
         return null;
     }
