@@ -7,6 +7,10 @@ import javax.swing.tree.DefaultMutableTreeNode;
 
 public class CustomTreeNode extends DefaultMutableTreeNode {
 
+    public void setAmount(double amount) {
+        this.amount = amount;
+    }
+
     double amount;
 
     CustomTreeNode(Object userObject, double amount) {

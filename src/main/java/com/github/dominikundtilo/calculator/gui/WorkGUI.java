@@ -66,8 +66,6 @@ public class WorkGUI extends GUI{
         configPanel.setLayout(new BorderLayout());
 
         resultPanel = new JScrollPane();
-
-
         resultPanel.setPreferredSize(new Dimension(50,50));
 
         configPanelLeft = new JPanel();
@@ -165,13 +163,9 @@ public class WorkGUI extends GUI{
                         Item item = data.getItem(ingredient);
                         if (!data.recipesForItem.containsKey(item)) return;
                         Recipe recipe = inputRecipe(item);
-                        CustomTreeNode parent = (CustomTreeNode) node.getParent();
-                        parent.remove(node);
-                        CustomTreeNode localRoot = new CustomTreeNode(recipe, node.amount);
+                        node.setUserObject(recipe);
                         for (Ingredient i : recipe.getIngredients())
-                            localRoot.add(new CustomTreeNode(i, node.amount * i.getAmount()));
-                        parent.add(localRoot);
-
+                            node.add(new CustomTreeNode(i, node.amount * i.getAmount()));
                     }
                 }
 
