@@ -1,16 +1,13 @@
 package com.github.dominikundtilo.calculator.gui;
 
-import com.github.dominikundtilo.calculator.lib.GameData;
-import com.github.dominikundtilo.calculator.lib.IItem;
-import com.github.dominikundtilo.calculator.lib.Item;
-import com.github.dominikundtilo.calculator.lib.Recipe;
-import javafx.geometry.VerticalDirection;
+import com.github.dominikundtilo.calculator.lib.*;
 
 import javax.swing.*;
+import javax.swing.tree.DefaultMutableTreeNode;
+import javax.swing.tree.TreeNode;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 
 /**
@@ -34,8 +31,10 @@ public class WorkGUI extends GUI{
     private JTextField amountField;
     private JButton confirmButton;
     private JButton calculateButton;
+    private JScrollPane treePane;
 
     private GameData data;
+
 
     public WorkGUI(GameData data) {
         super();
@@ -67,8 +66,8 @@ public class WorkGUI extends GUI{
 
         resultPanel = new JPanel();
         resultPanel.setLayout(new BorderLayout());
-        resultPanel.setBackground(Color.yellow);
-        resultPanel.setPreferredSize(new Dimension(50,50));
+        resultPanel.setBackground(Color.white);
+        resultPanel.setPreferredSize(new Dimension(50,200));
 
         configPanelLeft = new JPanel();
         configPanelLeft.setLayout(new BorderLayout());
@@ -124,6 +123,9 @@ public class WorkGUI extends GUI{
             }
         });
 
+        treePane = new JScrollPane();
+
+
 
 
 
@@ -151,7 +153,7 @@ public class WorkGUI extends GUI{
         configPanelRight.add(productivitybonus, BorderLayout.PAGE_START);
         configPanelRight.add(productivityField, BorderLayout.PAGE_END);
 
-
+        resultPanel.add(treePane, BorderLayout.CENTER);
 
 
     }
@@ -161,13 +163,17 @@ public class WorkGUI extends GUI{
     void initListeners() {
 
         calculateButton.addActionListener(e -> {
-            Recipe recipe = inputRecipe(data.craftableItems.get(products.getSelectedIndex()));
+
+            printTree(data.craftableItems.get(products.getSelectedIndex()), Integer.parseInt(amountField.getText()));
+        });
+
+        confirmButton.addActionListener(e -> {
 
         });
 
     }
 
-    private Recipe inputRecipe(Item item) {
+    public Recipe inputRecipe(Item item) {
         ArrayList<Recipe> recipes = data.recipesForItem.get(item);
         if (recipes.size() == 1)
             return recipes.get(0);
@@ -175,7 +181,89 @@ public class WorkGUI extends GUI{
         for (Recipe recipe : recipes)
             comboBox.addItem(recipe.getName());
         JOptionPane.showMessageDialog( null, comboBox, "select recipe", JOptionPane.QUESTION_MESSAGE);
+        System.out.println(comboBox.getSelectedIndex());
         return recipes.get(comboBox.getSelectedIndex());
     }
+
+    private TreeNode[] buildNode(Item item, double amount){
+        if (!isCraftabel(item.getName())){
+            DefaultMutableTreeNode[] treeNode = new DefaultMutableTreeNode[1];
+            treeNode[0] = new DefaultMutableTreeNode(item.getName() + " " + amount + "/s");
+            return treeNode;
+        }
+        else {
+
+            Recipe recipe = new Recipe();
+            recipe = inputRecipe(item);
+
+            double ingredientAmount = 0;
+            int productIndex = 0;
+
+            Product[] products = recipe.getProducts();
+
+            Ingredient[] ingredients = recipe.getIngredients();
+
+            TreeNode[] treeNode = new DefaultMutableTreeNode[ingredients.length];
+
+            for (int x = 0; x < ingredients.length; x++) {
+                ingredientAmount = (amount * ingredients[x].getAmount() / products[productIndex].getAmount());
+
+                treeNode[x] = new DefaultMutableTreeNode(ingredients[x].getName() + " " + amount + "/s");
+
+                TreeNode[] nodeNode = buildNode(data.items.get(getIndexDataItems(ingredients[x].getName())), ingredientAmount);
+
+                for (int y = 0; y < nodeNode.length; y++) treeNode[x].add(nodeNode[y]);
+            }
+
+            return treeNode;
+        }
+    }
+
+    private TreeNode buildMainNode(Item item, int amount){
+        TreeNode tree = new DefaultMutableTreeNode(item.getName() + " " + amount + "/s");
+
+        TreeNode[] treeNodes = buildNode(item, amount);
+
+        for (int x = 0; x > treeNodes.length; x++) tree.add(treeNodes[x]);
+
+        return tree;
+
+    }
+
+
+    private void printTree(Item item,int amount){
+
+        resultPanel.add(new JScrollPane(new JTree(buildMainNode(item, amount))), BorderLayout.CENTER);
+
+        pack();
+
+    }
+
+    private boolean isCraftabel (String name){
+        if (name.contains("barrel")) return false;
+        for (int x = 0; x < data.craftableItems.size(); x++){
+            if (name.equalsIgnoreCase(data.craftableItems.get(x).getName())) return true;
+        }
+        return false;
+    }
+
+
+
+    private int getIndexDataItems(String name){
+        int index = -1;
+
+        for (int x = 0; x < data.items.size(); x++){
+            if (name.equalsIgnoreCase(data.items.get(x).getName())) index = x;
+        }
+
+        return index;
+    }
+
+    private Item getItem(String name){
+        return data.items.get(getIndexDataItems(name));
+    }
+
+
+
 
 }

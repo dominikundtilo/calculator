@@ -5,6 +5,8 @@ apply plugin: 'java'
 apply plugin: 'idea'
 apply plugin: 'eclipse'
 
+compileJava.options.encoding = 'UTF-8'
+
 sourceCompatibility = 1.8
 
 repositories {
