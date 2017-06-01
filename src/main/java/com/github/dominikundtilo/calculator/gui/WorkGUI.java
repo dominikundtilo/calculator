@@ -25,6 +25,7 @@ public class WorkGUI extends GUI{
     private JScrollPane resultPanel;
     private JComboBox<String> products;
     private JComboBox<String> machines;
+    private JComboBox<String> furnaces;
     private JLabel speedbonus;
     private JLabel productivitybonus;
     private JLabel amount;
@@ -93,16 +94,21 @@ public class WorkGUI extends GUI{
         productivityField.setText("0");
 
         amountField = new JTextField();
-        amountField.setText("0");
+        amountField.setText("1");
 
 
         products = new JComboBox<>();
 
 
         machines = new JComboBox<>();
-        machines.addItem("Machine 0");
-        machines.addItem("Machine 1");
-        machines.addItem("Machine 2");
+        machines.addItem("Assembling-Machine 1");
+        machines.addItem("Assembling-Machine 2");
+        machines.addItem("Assembling-Machine 3");
+
+        furnaces = new JComboBox<>();
+        furnaces.addItem("Stonefurnace");
+        furnaces.addItem("Steelfurnaces");
+        furnaces.addItem("Electronic Furnace");
 
         confirmButton = new JButton();
         confirmButton.setText("Confirm changes");
@@ -126,6 +132,11 @@ public class WorkGUI extends GUI{
         productionPanelCenter.add(amountField, BorderLayout.PAGE_END);
 
         configPanel.add(machines, BorderLayout.PAGE_START);
+        configPanel.add(furnaces, BorderLayout.CENTER);
+        configPanel.add(new SpaceHolder(0, 40), BorderLayout.PAGE_END);
+
+
+        /*
         configPanel.add(configPanelLeft, BorderLayout.LINE_START);
         configPanel.add(new SpaceHolder(25, 0), BorderLayout.CENTER);
         configPanel.add(configPanelRight, BorderLayout.LINE_END);
@@ -136,8 +147,7 @@ public class WorkGUI extends GUI{
 
         configPanelRight.add(productivitybonus, BorderLayout.PAGE_START);
         configPanelRight.add(productivityField, BorderLayout.PAGE_END);
-
-
+        */
 
 
     }
@@ -150,9 +160,9 @@ public class WorkGUI extends GUI{
             double amount = Double.parseDouble(amountField.getText());
             if (amount <= 0) return;
             Recipe recipe = inputRecipe(data.craftableItems.get(products.getSelectedIndex()));
-            CustomTreeNode rootNode = new CustomTreeNode(recipe, recipe.computeAmount(amount));
+            CustomTreeNode rootNode = new CustomTreeNode(recipe, recipe.computeAmount(amount, machines.getSelectedIndex() + 1, furnaces.getSelectedIndex() + 1));
             for (Ingredient ingredient : recipe.getIngredients())
-                rootNode.add(new CustomTreeNode(ingredient, recipe.computeAmount(amount) * ingredient.getAmount() / recipe.getEnergy()));
+                rootNode.add(new CustomTreeNode(ingredient, recipe.computeAmount(amount, machines.getSelectedIndex() + 1, furnaces.getSelectedIndex() + 1) * ingredient.getAmount() / recipe.getEnergy() * recipe.getCraftingSpeed(machines.getSelectedIndex() + 1, furnaces.getSelectedIndex() + 1)));
             resultPanel.setViewportView(rootTree = new JTree(rootNode));
             rootTree.addMouseListener(new MouseListener() {
                 @Override
@@ -164,15 +174,15 @@ public class WorkGUI extends GUI{
                         if (!data.recipesForItem.containsKey(item)) return;
                         Recipe recipe = inputRecipe(item);
                         node.setUserObject(recipe);
-                        node.setAmount(recipe.computeAmount(node.getAmount()));
+                        node.setAmount(recipe.computeAmount(node.getAmount(), machines.getSelectedIndex() + 1, furnaces.getSelectedIndex() + 1));
                         for (Ingredient i : recipe.getIngredients())
-                            node.add(new CustomTreeNode(i, node.getAmount() * i.getAmount()  / recipe.getEnergy()));
+                            node.add(new CustomTreeNode(i, node.getAmount() * i.getAmount()  / recipe.getEnergy() * recipe.getCraftingSpeed(machines.getSelectedIndex() + 1, furnaces.getSelectedIndex() + 1)));
                     }
                 }
 
                 @Override
                 public void mousePressed(MouseEvent e) {
-                    System.out.println("sadads");
+                    //System.out.println("sadads");
                 }
 
                 @Override

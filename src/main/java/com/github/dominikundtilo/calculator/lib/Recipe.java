@@ -32,7 +32,7 @@ public class Recipe {
         return amount * energy / products[0].getAmount() * products[0].getProbability() / getCraftingSpeed(assemblingTier, smeltingTier);
     }
 
-    private double getCraftingSpeed(int assemblingTier, int smeltingTier) {
+    public double getCraftingSpeed(int assemblingTier, int smeltingTier) {
         if (category.equals("chemistry"))
             return 1.25;
         else if (category.equals("centrifuging"))
