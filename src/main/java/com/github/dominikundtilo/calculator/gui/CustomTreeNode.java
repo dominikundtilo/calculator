@@ -21,9 +21,9 @@ public class CustomTreeNode extends DefaultMutableTreeNode {
     @Override
     public String toString() {
         if (userObject instanceof Recipe)
-            return (Math.round(amount * 100)/ 100) + " Maschinen " + ((Recipe) userObject).getName();
+            return (Math.round(amount * 100)/ 100D) + " Maschinen " + ((Recipe) userObject).getName();
         if (userObject instanceof Ingredient)
-            return (Math.round(amount*100) / 100 )+ "x " + ((Ingredient) userObject).getName() + "/sec";
+            return (Math.round(amount*100) / 100D)+ "x " + ((Ingredient) userObject).getName() + "/sec";
         return super.toString();
     }
 
