@@ -7,6 +7,8 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
+import java.util.function.Consumer;
+import java.util.function.Predicate;
 
 public class GameData {
 
@@ -27,6 +29,7 @@ public class GameData {
         String json = new String(Files.readAllBytes(path), "UTF-8");
 
         recipes = new ArrayList<>(Arrays.asList(GSON.fromJson(json, Recipe[].class)));
+        recipes.removeIf(recipe -> recipe.getProducts().length != 1);
         recipes.sort((o1, o2) -> o1.getName().compareToIgnoreCase(o2.getName()));
 
         for (Recipe recipe : recipes) {
@@ -59,7 +62,7 @@ public class GameData {
             if (recipesForItem.containsKey(item))
                 craftableItems.add(item);
         }
-
+        System.out.println("");
     }
 
     public Item getItem(IItem item) {

@@ -150,9 +150,9 @@ public class WorkGUI extends GUI{
             double amount = Double.parseDouble(amountField.getText());
             if (amount <= 0) return;
             Recipe recipe = inputRecipe(data.craftableItems.get(products.getSelectedIndex()));
-            CustomTreeNode rootNode = new CustomTreeNode(recipe, amount);
-            for (Ingredient i : recipe.getIngredients())
-                rootNode.add(new CustomTreeNode(i, amount * i.getAmount()));
+            CustomTreeNode rootNode = new CustomTreeNode(recipe, recipe.computeAmount(amount));
+            for (Ingredient ingredient : recipe.getIngredients())
+                rootNode.add(new CustomTreeNode(ingredient, recipe.computeAmount(amount) * ingredient.getAmount() / recipe.getEnergy()));
             resultPanel.setViewportView(rootTree = new JTree(rootNode));
             rootTree.addMouseListener(new MouseListener() {
                 @Override
@@ -164,14 +164,15 @@ public class WorkGUI extends GUI{
                         if (!data.recipesForItem.containsKey(item)) return;
                         Recipe recipe = inputRecipe(item);
                         node.setUserObject(recipe);
+                        node.setAmount(recipe.computeAmount(node.getAmount()));
                         for (Ingredient i : recipe.getIngredients())
-                            node.add(new CustomTreeNode(i, node.amount * i.getAmount()));
+                            node.add(new CustomTreeNode(i, node.getAmount() * i.getAmount()  / recipe.getEnergy()));
                     }
                 }
 
                 @Override
                 public void mousePressed(MouseEvent e) {
-
+                    System.out.println("sadads");
                 }
 
                 @Override

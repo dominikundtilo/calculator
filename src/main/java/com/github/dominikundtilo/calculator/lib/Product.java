@@ -22,19 +22,11 @@ public class Product implements IItem {
 
 
     public double getAmount() {
-        return amount;
+        return amount * (amount_min + amount_max) / 2;
     }
 
     public int getTemperature() {
         return temperature;
-    }
-
-    public int getAmountMin() {
-        return amount_min;
-    }
-
-    public int getAmountMax() {
-        return amount_max;
     }
 
     public double getProbability() {

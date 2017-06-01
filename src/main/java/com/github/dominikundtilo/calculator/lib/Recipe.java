@@ -6,6 +6,7 @@ public class Recipe {
     private String category;
     private Ingredient[] ingredients;
     private Product[] products;
+    private double energy;
 
     public String getName() {
         return name;
@@ -21,6 +22,14 @@ public class Recipe {
 
     public Product[] getProducts() {
         return products;
+    }
+
+    public double getEnergy() {
+        return energy;
+    }
+
+    public double computeAmount(double amount) {
+        return amount * energy / products[0].getAmount() * products[0].getProbability();
     }
 
     @Override

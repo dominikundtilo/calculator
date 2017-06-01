@@ -21,9 +21,9 @@ public class CustomTreeNode extends DefaultMutableTreeNode {
     @Override
     public String toString() {
         if (userObject instanceof Recipe)
-            return amount + "x " + ((Recipe) userObject).getName();
+            return amount + " Maschinen " + ((Recipe) userObject).getName();
         if (userObject instanceof Ingredient)
-            return amount + "x " + ((Ingredient) userObject).getName();
+            return amount + "x " + ((Ingredient) userObject).getName() + "/sec";
         return super.toString();
     }
 
