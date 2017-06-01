@@ -12,6 +12,9 @@ import java.awt.event.MouseListener;
 import java.lang.reflect.Array;
 import java.util.ArrayList;
 
+/**
+ * Created by Dominik on 28.05.2017.
+ */
 
 public class WorkGUI extends GUI{
     private JPanel productionPanel;

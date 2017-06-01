@@ -41,4 +41,5 @@ public class Item implements IItem {
     public int hashCode() {
         return (type + name).hashCode();
     }
+
 }
