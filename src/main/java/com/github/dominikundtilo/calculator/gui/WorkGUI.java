@@ -7,13 +7,17 @@ import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import java.awt.*;
 import java.awt.event.*;
-import java.util.ArrayList;
+import java.util.*;
+import java.util.function.BiConsumer;
 
 /**
  * Created by Dominik on 28.05.2017.
  */
 
 public class WorkGUI extends GUI{
+
+    private JPanel leftPanel;
+    private JPanel rightPanel;
     private JPanel productionPanel;
     private JPanel productionPanelCenter;
     private JPanel configPanel;
@@ -32,6 +36,7 @@ public class WorkGUI extends GUI{
     //private JButton confirmButton;
     //private JButton calculateButton;
     private JTree rootTree;
+    private JTextPane input;
 
     private GameData data;
 
@@ -56,6 +61,18 @@ public class WorkGUI extends GUI{
 
         panel.setLayout(new BorderLayout());
         panel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
+
+        leftPanel = new JPanel();
+        leftPanel.setLayout(new BorderLayout());
+
+        rightPanel = new JPanel();
+        rightPanel.setLayout(new BorderLayout());
+
+        input = new JTextPane();
+        input.setBorder(BorderFactory.createBevelBorder(1));
+        input.setPreferredSize(new Dimension(250,150));
+        rightPanel.add(new JLabel("Input:"), BorderLayout.PAGE_START);
+        rightPanel.add(input, BorderLayout.CENTER);
 
         productionPanel = new JPanel();
         productionPanel.setLayout(new BorderLayout());
@@ -116,10 +133,14 @@ public class WorkGUI extends GUI{
 
 
 
-        panel.add(productionPanel, BorderLayout.LINE_START);
+        leftPanel.add(productionPanel, BorderLayout.LINE_START);
         //panel.add(new SpaceHolder(25, 0), BorderLayout.CENTER);
-        panel.add(configPanel, BorderLayout.LINE_END);
-        panel.add(resultPanel, BorderLayout.PAGE_END);
+        leftPanel.add(configPanel, BorderLayout.LINE_END);
+        leftPanel.add(resultPanel, BorderLayout.PAGE_END);
+
+        panel.add(leftPanel, BorderLayout.LINE_START);
+        panel.add(new JSeparator(JSeparator.VERTICAL),  BorderLayout.CENTER);
+        panel.add(rightPanel, BorderLayout.LINE_END);
 
         productionPanel.add(products, BorderLayout.PAGE_START);
         productionPanel.add(productionPanelCenter, BorderLayout.CENTER);
@@ -207,6 +228,7 @@ public class WorkGUI extends GUI{
         for (Ingredient ingredient : recipe.getIngredients())
             rootNode.add(new CustomTreeNode(ingredient, recipe.computeAmount(amount, machines.getSelectedIndex() + 1, furnaces.getSelectedIndex() + 1) * ingredient.getAmount() / recipe.getEnergy() * recipe.getCraftingSpeed(machines.getSelectedIndex() + 1, furnaces.getSelectedIndex() + 1)));
         resultPanel.setViewportView(rootTree = new JTree(rootNode));
+        updateInput();
         rootTree.addMouseListener(new MouseListener() {
             @Override
             public void mouseClicked(MouseEvent e) {
@@ -222,6 +244,7 @@ public class WorkGUI extends GUI{
                     for (Ingredient i : recipe.getIngredients())
                         node.add(new CustomTreeNode(i, node.getAmount() * i.getAmount()  / recipe.getEnergy() * recipe.getCraftingSpeed(machines.getSelectedIndex() + 1, furnaces.getSelectedIndex() + 1)));
                 }
+                updateInput();
             }
 
             @Override
@@ -246,6 +269,41 @@ public class WorkGUI extends GUI{
         });
 
 
+    }
+
+    private void updateInput() {
+        StringBuilder builder = new StringBuilder();
+        getInput().forEach(new BiConsumer<Item, Double>() {
+            @Override
+            public void accept(Item item, Double amount) {
+                builder.append(Math.round(amount * 100) / 100D).append("x ").append(item.getName()).append("/sec\n");
+            }
+        });
+        input.setText(builder.toString());
+    }
+
+    private HashMap<Item, Double> getInput() {
+        HashMap<Item, Double> ret = new HashMap<>();
+        ArrayList<CustomTreeNode> list = getSubNodes((CustomTreeNode) rootTree.getModel().getRoot());
+        for (CustomTreeNode node : list) {
+            if (node.getUserObject() instanceof Ingredient) {
+                Item item = data.getItem((Ingredient) node.getUserObject());
+                if (!ret.containsKey(item))
+                    ret.put(item, 0D);
+                ret.replace(item, ret.get(item) + node.amount);
+            }
+        }
+        return ret;
+    }
+
+    private ArrayList<CustomTreeNode> getSubNodes(CustomTreeNode customTreeNode) {
+        ArrayList<CustomTreeNode> list = new ArrayList<>();
+        for (int i = 0; i < customTreeNode.getChildCount(); i++) {
+            CustomTreeNode node = (CustomTreeNode) customTreeNode.getChildAt(i);
+            list.add(node);
+            list.addAll(getSubNodes(node));
+        }
+        return list;
     }
 
     private Recipe inputRecipe(Item item) {
