@@ -5,10 +5,8 @@ import com.github.dominikundtilo.calculator.lib.*;
 import javax.swing.*;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
-import javax.swing.tree.DefaultMutableTreeNode;
 import java.awt.*;
 import java.awt.event.*;
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 
 /**
@@ -105,8 +103,8 @@ public class WorkGUI extends GUI{
         machines.addItem("Assembling-Machine 3");
 
         furnaces = new JComboBox<>();
-        furnaces.addItem("Stonefurnace");
-        furnaces.addItem("Steelfurnace");
+        furnaces.addItem("Stone Furnace");
+        furnaces.addItem("Steel Furnace");
         furnaces.addItem("Electronic Furnace");
 
         //confirmButton = new JButton();
