@@ -3,12 +3,11 @@ package com.github.dominikundtilo.calculator.gui;
 import com.github.dominikundtilo.calculator.lib.*;
 
 import javax.swing.*;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 import javax.swing.tree.DefaultMutableTreeNode;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
+import java.awt.event.*;
 import java.lang.reflect.Array;
 import java.util.ArrayList;
 
@@ -32,8 +31,8 @@ public class WorkGUI extends GUI{
     private JTextField speedField;
     private JTextField productivityField;
     private JTextField amountField;
-    private JButton confirmButton;
-    private JButton calculateButton;
+    //private JButton confirmButton;
+    //private JButton calculateButton;
     private JTree rootTree;
 
     private GameData data;
@@ -107,33 +106,33 @@ public class WorkGUI extends GUI{
 
         furnaces = new JComboBox<>();
         furnaces.addItem("Stonefurnace");
-        furnaces.addItem("Steelfurnaces");
+        furnaces.addItem("Steelfurnace");
         furnaces.addItem("Electronic Furnace");
 
-        confirmButton = new JButton();
-        confirmButton.setText("Confirm changes");
+        //confirmButton = new JButton();
+        //confirmButton.setText("Confirm changes");
 
-        calculateButton = new JButton();
-        calculateButton.setText("Calculate");
+        //calculateButton = new JButton();
+        //calculateButton.setText("Calculate");
 
 
 
 
         panel.add(productionPanel, BorderLayout.LINE_START);
-        panel.add(new SpaceHolder(25, 0), BorderLayout.CENTER);
+        //panel.add(new SpaceHolder(25, 0), BorderLayout.CENTER);
         panel.add(configPanel, BorderLayout.LINE_END);
         panel.add(resultPanel, BorderLayout.PAGE_END);
 
         productionPanel.add(products, BorderLayout.PAGE_START);
         productionPanel.add(productionPanelCenter, BorderLayout.CENTER);
-        productionPanel.add(calculateButton, BorderLayout.PAGE_END);
+        //productionPanel.add(calculateButton, BorderLayout.PAGE_END);
 
         productionPanelCenter.add(amount, BorderLayout.PAGE_START);
         productionPanelCenter.add(amountField, BorderLayout.PAGE_END);
 
         configPanel.add(machines, BorderLayout.PAGE_START);
         configPanel.add(furnaces, BorderLayout.CENTER);
-        configPanel.add(new SpaceHolder(0, 40), BorderLayout.PAGE_END);
+        //configPanel.add(new SpaceHolder(0, 40), BorderLayout.PAGE_END);
 
 
         /*
@@ -156,51 +155,98 @@ public class WorkGUI extends GUI{
     @Override
     void initListeners() {
 
-        calculateButton.addActionListener(e -> {
-            double amount = Double.parseDouble(amountField.getText());
-            if (amount <= 0) return;
-            Recipe recipe = inputRecipe(data.craftableItems.get(products.getSelectedIndex()));
-            CustomTreeNode rootNode = new CustomTreeNode(recipe, recipe.computeAmount(amount, machines.getSelectedIndex() + 1, furnaces.getSelectedIndex() + 1));
-            for (Ingredient ingredient : recipe.getIngredients())
-                rootNode.add(new CustomTreeNode(ingredient, recipe.computeAmount(amount, machines.getSelectedIndex() + 1, furnaces.getSelectedIndex() + 1) * ingredient.getAmount() / recipe.getEnergy() * recipe.getCraftingSpeed(machines.getSelectedIndex() + 1, furnaces.getSelectedIndex() + 1)));
-            resultPanel.setViewportView(rootTree = new JTree(rootNode));
-            rootTree.addMouseListener(new MouseListener() {
-                @Override
-                public void mouseClicked(MouseEvent e) {
-                    CustomTreeNode node = (CustomTreeNode) rootTree.getSelectionPath().getLastPathComponent();
-                    if (node.getUserObject() instanceof Ingredient) {
-                        Ingredient ingredient = (Ingredient) node.getUserObject();
-                        Item item = data.getItem(ingredient);
-                        if (!data.recipesForItem.containsKey(item)) return;
-                        Recipe recipe = inputRecipe(item);
-                        node.setUserObject(recipe);
-                        node.setAmount(recipe.computeAmount(node.getAmount(), machines.getSelectedIndex() + 1, furnaces.getSelectedIndex() + 1));
-                        for (Ingredient i : recipe.getIngredients())
-                            node.add(new CustomTreeNode(i, node.getAmount() * i.getAmount()  / recipe.getEnergy() * recipe.getCraftingSpeed(machines.getSelectedIndex() + 1, furnaces.getSelectedIndex() + 1)));
-                    }
+        amountField.getDocument().addDocumentListener(new DocumentListener() {
+            @Override
+            public void insertUpdate(DocumentEvent e) {
+                calculate();
+                updateColor();
+            }
+
+            @Override
+            public void removeUpdate(DocumentEvent e) {
+                calculate();
+                updateColor();
+            }
+
+            @Override
+            public void changedUpdate(DocumentEvent e) {
+                calculate();
+                updateColor();
+            }
+
+            private void updateColor() {
+                double amount;
+                try {
+                    amount = Double.parseDouble(amountField.getText().replace(',', '.'));
+                } catch (NumberFormatException e) {
+                    amountField.setForeground(Color.RED);
+                    return;
                 }
-
-                @Override
-                public void mousePressed(MouseEvent e) {
-                    //System.out.println("sadads");
+                if (amount <= 0) {
+                    amountField.setForeground(Color.ORANGE);
+                    return;
                 }
-
-                @Override
-                public void mouseReleased(MouseEvent e) {
-
-                }
-
-                @Override
-                public void mouseEntered(MouseEvent e) {
-
-                }
-
-                @Override
-                public void mouseExited(MouseEvent e) {
-
-                }
-            });
+                amountField.setForeground(Color.BLACK);
+            }
         });
+
+        products.addItemListener(e -> calculate());
+        machines.addItemListener(e -> calculate());
+        furnaces.addItemListener(e -> calculate());
+
+    }
+
+    private void calculate() {
+        double amount;
+        try {
+            amount = Double.parseDouble(amountField.getText().replace(',', '.'));
+        } catch (NumberFormatException e) {
+            return;
+        }
+        if (amount <= 0) return;
+        Recipe recipe = inputRecipe(data.craftableItems.get(products.getSelectedIndex()));
+        CustomTreeNode rootNode = new CustomTreeNode(recipe, recipe.computeAmount(amount, machines.getSelectedIndex() + 1, furnaces.getSelectedIndex() + 1));
+        for (Ingredient ingredient : recipe.getIngredients())
+            rootNode.add(new CustomTreeNode(ingredient, recipe.computeAmount(amount, machines.getSelectedIndex() + 1, furnaces.getSelectedIndex() + 1) * ingredient.getAmount() / recipe.getEnergy() * recipe.getCraftingSpeed(machines.getSelectedIndex() + 1, furnaces.getSelectedIndex() + 1)));
+        resultPanel.setViewportView(rootTree = new JTree(rootNode));
+        rootTree.addMouseListener(new MouseListener() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                CustomTreeNode node = (CustomTreeNode) rootTree.getSelectionPath().getLastPathComponent();
+                if (node == null) return;
+                if (node.getUserObject() instanceof Ingredient) {
+                    Ingredient ingredient = (Ingredient) node.getUserObject();
+                    Item item = data.getItem(ingredient);
+                    if (!data.recipesForItem.containsKey(item)) return;
+                    Recipe recipe = inputRecipe(item);
+                    node.setUserObject(recipe);
+                    node.setAmount(recipe.computeAmount(node.getAmount(), machines.getSelectedIndex() + 1, furnaces.getSelectedIndex() + 1));
+                    for (Ingredient i : recipe.getIngredients())
+                        node.add(new CustomTreeNode(i, node.getAmount() * i.getAmount()  / recipe.getEnergy() * recipe.getCraftingSpeed(machines.getSelectedIndex() + 1, furnaces.getSelectedIndex() + 1)));
+                }
+            }
+
+            @Override
+            public void mousePressed(MouseEvent e) {
+                //System.out.println("sadads");
+            }
+
+            @Override
+            public void mouseReleased(MouseEvent e) {
+
+            }
+
+            @Override
+            public void mouseEntered(MouseEvent e) {
+
+            }
+
+            @Override
+            public void mouseExited(MouseEvent e) {
+
+            }
+        });
+
 
     }
 
