@@ -27,7 +27,7 @@ public class GameData {
         String json = new String(Files.readAllBytes(path), "UTF-8");
 
         recipes = new ArrayList<>(Arrays.asList(GSON.fromJson(json, Recipe[].class)));
-        Collections.sort(recipes, (o1, o2) -> o1.getName().compareToIgnoreCase(o2.getName()));
+        recipes.sort((o1, o2) -> o1.getName().compareToIgnoreCase(o2.getName()));
 
         for (Recipe recipe : recipes) {
             if (!recipesByCategory.containsKey(recipe.getCategory()))
@@ -62,7 +62,7 @@ public class GameData {
 
     }
 
-    private Item getItem(IItem item) {
+    public Item getItem(IItem item) {
         //noinspection SuspiciousMethodCalls
         return items.get(items.indexOf(item));
     }

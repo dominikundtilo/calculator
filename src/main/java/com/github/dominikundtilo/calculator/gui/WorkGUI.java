@@ -1,21 +1,17 @@
 package com.github.dominikundtilo.calculator.gui;
 
-import com.github.dominikundtilo.calculator.lib.GameData;
-import com.github.dominikundtilo.calculator.lib.IItem;
-import com.github.dominikundtilo.calculator.lib.Item;
-import com.github.dominikundtilo.calculator.lib.Recipe;
-import javafx.geometry.VerticalDirection;
+import com.github.dominikundtilo.calculator.lib.*;
 
 import javax.swing.*;
+import javax.swing.tree.DefaultMutableTreeNode;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.lang.reflect.Array;
 import java.util.ArrayList;
 
-/**
- * Created by Dominik on 28.05.2017.
- */
 
 public class WorkGUI extends GUI{
     private JPanel productionPanel;
@@ -23,7 +19,7 @@ public class WorkGUI extends GUI{
     private JPanel configPanel;
     private JPanel configPanelLeft;
     private JPanel configPanelRight;
-    private JPanel resultPanel;
+    private JScrollPane resultPanel;
     private JComboBox<String> products;
     private JComboBox<String> machines;
     private JLabel speedbonus;
@@ -34,6 +30,7 @@ public class WorkGUI extends GUI{
     private JTextField amountField;
     private JButton confirmButton;
     private JButton calculateButton;
+    private JTree rootTree;
 
     private GameData data;
 
@@ -65,9 +62,9 @@ public class WorkGUI extends GUI{
         configPanel = new JPanel();
         configPanel.setLayout(new BorderLayout());
 
-        resultPanel = new JPanel();
-        resultPanel.setLayout(new BorderLayout());
-        resultPanel.setBackground(Color.yellow);
+        resultPanel = new JScrollPane();
+
+
         resultPanel.setPreferredSize(new Dimension(50,50));
 
         configPanelLeft = new JPanel();
@@ -108,21 +105,9 @@ public class WorkGUI extends GUI{
 
         confirmButton = new JButton();
         confirmButton.setText("Confirm changes");
-        confirmButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-
-            }
-        });
 
         calculateButton = new JButton();
         calculateButton.setText("Calculate");
-        calculateButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-
-            }
-        });
 
 
 
@@ -161,8 +146,52 @@ public class WorkGUI extends GUI{
     void initListeners() {
 
         calculateButton.addActionListener(e -> {
+            double amount = Double.parseDouble(amountField.getText());
+            if (amount <= 0) return;
             Recipe recipe = inputRecipe(data.craftableItems.get(products.getSelectedIndex()));
+            CustomTreeNode rootNode = new CustomTreeNode(recipe, amount);
+            for (Ingredient i : recipe.getIngredients())
+                rootNode.add(new CustomTreeNode(i, amount * i.getAmount()));
+            resultPanel.setViewportView(rootTree = new JTree(rootNode));
+            rootTree.addMouseListener(new MouseListener() {
+                @Override
+                public void mouseClicked(MouseEvent e) {
+                    CustomTreeNode node = (CustomTreeNode) rootTree.getSelectionPath().getLastPathComponent();
+                    if (node.getUserObject() instanceof Ingredient) {
+                        Ingredient ingredient = (Ingredient) node.getUserObject();
+                        Item item = data.getItem(ingredient);
+                        if (!data.recipesForItem.containsKey(item)) return;
+                        Recipe recipe = inputRecipe(item);
+                        CustomTreeNode parent = (CustomTreeNode) node.getParent();
+                        parent.remove(node);
+                        CustomTreeNode localRoot = new CustomTreeNode(recipe, node.amount);
+                        for (Ingredient i : recipe.getIngredients())
+                            localRoot.add(new CustomTreeNode(i, node.amount * i.getAmount()));
+                        parent.add(localRoot);
 
+                    }
+                }
+
+                @Override
+                public void mousePressed(MouseEvent e) {
+
+                }
+
+                @Override
+                public void mouseReleased(MouseEvent e) {
+
+                }
+
+                @Override
+                public void mouseEntered(MouseEvent e) {
+
+                }
+
+                @Override
+                public void mouseExited(MouseEvent e) {
+
+                }
+            });
         });
 
     }
