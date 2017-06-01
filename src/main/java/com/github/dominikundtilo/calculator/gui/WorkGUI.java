@@ -66,7 +66,7 @@ public class WorkGUI extends GUI{
         configPanel.setLayout(new BorderLayout());
 
         resultPanel = new JScrollPane();
-        resultPanel.setPreferredSize(new Dimension(50,50));
+        resultPanel.setPreferredSize(new Dimension(50,300));
 
         configPanelLeft = new JPanel();
         configPanelLeft.setLayout(new BorderLayout());
