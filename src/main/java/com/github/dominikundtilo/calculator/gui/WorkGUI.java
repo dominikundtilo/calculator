@@ -151,7 +151,7 @@ public class WorkGUI extends GUI{
 
         configPanel.add(machines, BorderLayout.PAGE_START);
         configPanel.add(furnaces, BorderLayout.CENTER);
-        //configPanel.add(new SpaceHolder(0, 40), BorderLayout.PAGE_END);
+        configPanel.add(new SpaceHolder(0, 20), BorderLayout.PAGE_END);
 
 
         /*
